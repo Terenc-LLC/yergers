@@ -1,7 +1,7 @@
-export function Octagon({ className }: { className?: string }) {
+export function Square({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 100 100" className={className} aria-hidden="true" data-testid="shape-octagon">
-      <polygon points="30,10 70,10 90,30 90,70 70,90 30,90 10,70 10,30" fill="currentColor" />
+    <svg viewBox="0 0 100 100" className={className} aria-hidden="true" data-testid="shape-square">
+      <rect x="15" y="15" width="70" height="70" fill="currentColor" />
     </svg>
   );
 }

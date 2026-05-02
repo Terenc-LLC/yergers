@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 import type { Board, CellState } from '../engine/types';
-import { Octagon, Triangle, Circle } from './Shapes';
+import { Square, Triangle, Circle } from './Shapes';
 
 interface GridProps {
   board: Board;
@@ -38,7 +38,7 @@ const SHAPE_TEXT: Record<CellState, string> = {
 
 function CellShape({ state }: { state: CellState }) {
   const cls = `w-1/2 aspect-square ${SHAPE_TEXT[state]}`;
-  if (state === 'red') return <Octagon className={cls} />;
+  if (state === 'red') return <Square className={cls} />;
   if (state === 'yellow') return <Triangle className={cls} />;
   if (state === 'green') return <Circle className={cls} />;
   return null;
