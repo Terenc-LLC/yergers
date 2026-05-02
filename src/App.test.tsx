@@ -20,8 +20,9 @@ describe('App', () => {
     render(<App />);
     expect(screen.getByText('Yergers')).toBeInTheDocument();
     expect(screen.getByText('Easy')).toBeInTheDocument();
-    expect(screen.getByText('Medium')).toBeInTheDocument();
+    expect(screen.getByText('Normal')).toBeInTheDocument();
     expect(screen.getByText('Hard')).toBeInTheDocument();
+    expect(screen.getByText('Extreme')).toBeInTheDocument();
   });
 
   it('selecting a difficulty mounts the game screen', () => {
@@ -30,5 +31,14 @@ describe('App', () => {
     expect(screen.getByText('Reveal Pattern')).toBeInTheDocument();
     expect(screen.getByTestId('score-value')).toBeInTheDocument();
     expect(screen.getByTestId('timer-value')).toBeInTheDocument();
+  });
+
+  it('selecting Normal starts a 5×5 game (25 grid cells)', () => {
+    render(<App />);
+    fireEvent.click(screen.getByText('Normal'));
+    // Reveal the pattern so cells are in the DOM
+    fireEvent.click(screen.getByText('Reveal Pattern'));
+    const cells = screen.getAllByRole('button', { name: /cell at row/i });
+    expect(cells).toHaveLength(25);
   });
 });

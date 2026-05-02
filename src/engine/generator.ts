@@ -4,7 +4,7 @@ import { applyMove } from './placement';
 export interface GeneratedPuzzle {
   target: Board;
   solution: Move[];
-  gridSize: 4 | 6 | 8;
+  gridSize: 4 | 5 | 6 | 8;
   seed: string;
 }
 
@@ -80,13 +80,14 @@ function isTrivial(target: Board, solution: Move[], size: number): boolean {
   return false;
 }
 
-const MOVE_RANGE: Record<4 | 6 | 8, [number, number]> = {
+const MOVE_RANGE: Record<4 | 5 | 6 | 8, [number, number]> = {
   4: [4, 7],
+  5: [5, 9],
   6: [6, 10],
   8: [8, 14],
 };
 
-function tryGenerate(seed: string, gridSize: 4 | 6 | 8, attempt: number): GeneratedPuzzle | null {
+function tryGenerate(seed: string, gridSize: 4 | 5 | 6 | 8, attempt: number): GeneratedPuzzle | null {
   // Each attempt uses a distinct internal RNG seed so retries explore different boards.
   const rng = mulberry32(hashSeed(`${seed}/${attempt}`));
   const [minMoves, maxMoves] = MOVE_RANGE[gridSize];
@@ -111,7 +112,7 @@ function tryGenerate(seed: string, gridSize: 4 | 6 | 8, attempt: number): Genera
   return { target, solution, gridSize, seed };
 }
 
-export function generatePuzzle(seed: string, gridSize: 4 | 6 | 8): GeneratedPuzzle {
+export function generatePuzzle(seed: string, gridSize: 4 | 5 | 6 | 8): GeneratedPuzzle {
   for (let attempt = 0; attempt < 1000; attempt++) {
     const result = tryGenerate(seed, gridSize, attempt);
     if (result !== null) return result;

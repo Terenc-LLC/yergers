@@ -16,8 +16,8 @@ function boardsEqual(a: Board, b: Board): boolean {
   return true;
 }
 
-const SIZES = [4, 6, 8] as const;
-const MOVE_RANGES: Record<number, [number, number]> = { 4: [4, 7], 6: [6, 10], 8: [8, 14] };
+const SIZES = [4, 5, 6, 8] as const;
+const MOVE_RANGES: Record<number, [number, number]> = { 4: [4, 7], 5: [5, 9], 6: [6, 10], 8: [8, 14] };
 
 describe('generatePuzzle — determinism', () => {
   it('same seed + gridSize always produces the same puzzle', () => {
@@ -64,10 +64,24 @@ describe('generatePuzzle — solution length', () => {
   }
 });
 
+describe('generatePuzzle — 5×5 grid', () => {
+  it('generates a 5×5 target board', () => {
+    const { target } = generatePuzzle('5x5-test', 5);
+    expect(target.length).toBe(5);
+    expect(target[0].length).toBe(5);
+  });
+
+  it('5×5 solution length is within [5, 9]', () => {
+    const { solution } = generatePuzzle('5x5-length', 5);
+    expect(solution.length).toBeGreaterThanOrEqual(5);
+    expect(solution.length).toBeLessThanOrEqual(9);
+  });
+});
+
 describe('generatePuzzle — non-triviality (1000 puzzles)', () => {
   it('all 1000 generated puzzles pass non-triviality checks', () => {
     for (let i = 0; i < 1000; i++) {
-      const size = SIZES[i % 3];
+      const size = SIZES[i % 4];
       const { target, solution, gridSize } = generatePuzzle(`bulk-${i}`, size);
       const total = gridSize * gridSize;
       const counts = { empty: 0, red: 0, yellow: 0, green: 0 };

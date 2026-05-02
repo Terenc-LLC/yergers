@@ -1,17 +1,18 @@
 import type { JSX } from 'react';
 
 interface SummaryProps {
-  gridSize: 4 | 6 | 8;
+  gridSize: 4 | 5 | 6 | 8;
   moveCount: number;
   elapsedMs: number;
   onPlayAgain: () => void;
   onPickDifficulty: () => void;
 }
 
-const GRID_LABEL: Record<4 | 6 | 8, string> = {
+const GRID_LABEL: Record<4 | 5 | 6 | 8, string> = {
   4: 'Easy (4×4)',
-  6: 'Medium (6×6)',
-  8: 'Hard (8×8)',
+  5: 'Normal (5×5)',
+  6: 'Hard (6×6)',
+  8: 'Extreme (8×8)',
 };
 
 function formatTime(ms: number): string {

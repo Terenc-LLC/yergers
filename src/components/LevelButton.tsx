@@ -1,14 +1,15 @@
 import type { JSX } from 'react';
 
 interface LevelButtonProps {
-  size: 4 | 6 | 8;
+  size: 4 | 5 | 6 | 8;
   label: string;
   onSelect: () => void;
   completedToday?: { moves: number; elapsedMs: number };
 }
 
-const SIZE_LABEL: Record<4 | 6 | 8, string> = {
+const SIZE_LABEL: Record<4 | 5 | 6 | 8, string> = {
   4: '4×4',
+  5: '5×5',
   6: '6×6',
   8: '8×8',
 };

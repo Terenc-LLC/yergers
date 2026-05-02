@@ -5,11 +5,12 @@ import { Square, Triangle, Circle } from './Shapes';
 interface GridProps {
   board: Board;
   onCellTap?: (row: number, col: number) => void;
-  size: 4 | 6 | 8;
+  size: 4 | 5 | 6 | 8;
 }
 
-const GRID_COLS: Record<4 | 6 | 8, string> = {
+const GRID_COLS: Record<4 | 5 | 6 | 8, string> = {
   4: 'grid-cols-4',
+  5: 'grid-cols-5',
   6: 'grid-cols-6',
   8: 'grid-cols-8',
 };
