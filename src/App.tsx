@@ -1,79 +1,51 @@
 import { useState } from 'react';
-import { Grid } from './components/Grid';
-import type { Board } from './engine/types';
+import { DifficultyPicker } from './components/DifficultyPicker';
+import { GameScreen } from './components/GameScreen';
+import { ThemeToggle } from './components/ThemeToggle';
+import { useTheme } from './hooks/useTheme';
+import { generatePuzzle, dailySeed } from './engine/generator';
+import type { GeneratedPuzzle } from './engine/generator';
 
-// Hand-crafted demo boards covering all four cell states (empty/red/yellow/green).
-// Diagonal cycling pattern makes all states easily visible.
-
-const BOARD_4: Board = [
-  ['empty',  'red',    'yellow', 'green' ],
-  ['green',  'empty',  'red',    'yellow'],
-  ['yellow', 'green',  'empty',  'red'   ],
-  ['red',    'yellow', 'green',  'empty' ],
-];
-
-const BOARD_6: Board = [
-  ['empty',  'red',    'yellow', 'green',  'empty',  'red'   ],
-  ['green',  'empty',  'red',    'yellow', 'green',  'empty' ],
-  ['yellow', 'green',  'empty',  'red',    'yellow', 'green' ],
-  ['red',    'yellow', 'green',  'empty',  'red',    'yellow'],
-  ['empty',  'red',    'yellow', 'green',  'empty',  'red'   ],
-  ['green',  'empty',  'red',    'yellow', 'green',  'empty' ],
-];
-
-const BOARD_8: Board = [
-  ['empty',  'red',    'yellow', 'green',  'empty',  'red',    'yellow', 'green' ],
-  ['green',  'empty',  'red',    'yellow', 'green',  'empty',  'red',    'yellow'],
-  ['yellow', 'green',  'empty',  'red',    'yellow', 'green',  'empty',  'red'   ],
-  ['red',    'yellow', 'green',  'empty',  'red',    'yellow', 'green',  'empty' ],
-  ['empty',  'red',    'yellow', 'green',  'empty',  'red',    'yellow', 'green' ],
-  ['green',  'empty',  'red',    'yellow', 'green',  'empty',  'red',    'yellow'],
-  ['yellow', 'green',  'empty',  'red',    'yellow', 'green',  'empty',  'red'   ],
-  ['red',    'yellow', 'green',  'empty',  'red',    'yellow', 'green',  'empty' ],
-];
-
-function DemoGrid({
-  label,
-  board,
-  size,
-}: {
-  label: string;
-  board: Board;
-  size: 4 | 6 | 8;
-}) {
-  const [lastTap, setLastTap] = useState<string | null>(null);
-
-  return (
-    <section className="w-full max-w-sm mx-auto px-2">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{label}</h2>
-      <Grid board={board} size={size} onCellTap={(r, c) => setLastTap(`row ${r + 1}, col ${c + 1}`)} />
-      <p className="mt-2 text-sm text-gray-400 min-h-5">
-        {lastTap ? `Tapped: ${lastTap}` : 'Tap a cell'}
-      </p>
-    </section>
-  );
-}
+type AppView = 'difficulty' | 'game';
 
 export default function App() {
+  const { theme, toggleTheme } = useTheme();
+  const [view, setView] = useState<AppView>('difficulty');
+  const [puzzle, setPuzzle] = useState<GeneratedPuzzle | null>(null);
+
+  const handleSelectDifficulty = (size: 4 | 6 | 8) => {
+    setPuzzle(generatePuzzle(dailySeed(new Date()), size));
+    setView('game');
+  };
+
   return (
     <>
-      <main className="min-h-screen bg-white dark:bg-gray-950 py-8 flex flex-col gap-10 items-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Grid Demo — TER-135</h1>
-        <DemoGrid label="4×4 Easy" board={BOARD_4} size={4} />
-        <DemoGrid label="6×6 Medium" board={BOARD_6} size={6} />
-        <DemoGrid label="8×8 Hard" board={BOARD_8} size={8} />
+      <div className="fixed top-0 right-0 z-50 p-3 pt-[env(safe-area-inset-top,12px)] pr-[env(safe-area-inset-right,12px)]">
+        <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+      </div>
+      <main className="min-h-screen bg-white dark:bg-gray-950 pt-14 pb-8">
+        {view === 'difficulty' && (
+          <DifficultyPicker onSelect={handleSelectDifficulty} />
+        )}
+        {view === 'game' && puzzle !== null && (
+          <GameScreen
+            puzzle={puzzle}
+            mode="daily"
+            onPickDifficulty={() => setView('difficulty')}
+          />
+        )}
       </main>
       <footer className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">
         Last shipped:{' '}
         <a
-          href="https://linear.app/terenc/issue/TER-136"
+          href="https://linear.app/terenc/issue/TER-137"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:underline"
         >
-          TER-136
+          TER-137
         </a>{' '}
-        — useGame hook
+        — Full game UI
       </footer>
     </>
   );
