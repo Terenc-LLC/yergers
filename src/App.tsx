@@ -38,14 +38,14 @@ export default function App() {
       <footer className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">
         Last shipped:{' '}
         <a
-          href="https://linear.app/terenc/issue/TER-145"
+          href="https://linear.app/terenc/issue/TER-149"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:underline"
         >
-          TER-145
+          TER-149
         </a>{' '}
-        — Difficulty ladder 4/5/6/8
+        — Green blocking
       </footer>
     </>
   );
