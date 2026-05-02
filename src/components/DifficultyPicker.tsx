@@ -2,14 +2,15 @@ import type { JSX } from 'react';
 import { LevelButton } from './LevelButton';
 
 interface DifficultyPickerProps {
-  onSelect: (size: 4 | 6 | 8) => void;
+  onSelect: (size: 4 | 5 | 6 | 8) => void;
   onShowStats?: () => void;
 }
 
-const LEVELS: { size: 4 | 6 | 8; label: string }[] = [
+const LEVELS: { size: 4 | 5 | 6 | 8; label: string }[] = [
   { size: 4, label: 'Easy' },
-  { size: 6, label: 'Medium' },
-  { size: 8, label: 'Hard' },
+  { size: 5, label: 'Normal' },
+  { size: 6, label: 'Hard' },
+  { size: 8, label: 'Extreme' },
 ];
 
 export function DifficultyPicker({ onSelect, onShowStats }: DifficultyPickerProps): JSX.Element {

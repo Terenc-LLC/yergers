@@ -7,7 +7,7 @@ export type GamePhase = 'idle' | 'pattern-revealed' | 'playing' | 'complete';
 
 export interface GameView {
   phase: GamePhase;
-  gridSize: 4 | 6 | 8;
+  gridSize: 4 | 5 | 6 | 8;
   current: Board;
   target: Board;
   patternVisible: boolean;
@@ -38,7 +38,7 @@ type Action =
   | { type: 'HIDE_PATTERN' }
   | { type: 'SELECT_COLOR'; color: Color }
   | { type: 'PLACE_AT'; row: number; col: number; target: Board; now: number }
-  | { type: 'RESET'; gridSize: 4 | 6 | 8 }
+  | { type: 'RESET'; gridSize: 4 | 5 | 6 | 8 }
   | { type: 'TICK'; now: number };
 
 function emptyBoard(size: number): Board {
@@ -54,7 +54,7 @@ function boardsMatch(a: Board, b: Board): boolean {
   return true;
 }
 
-function makeInitialState(gridSize: 4 | 6 | 8): GameState {
+function makeInitialState(gridSize: 4 | 5 | 6 | 8): GameState {
   return {
     phase: 'idle',
     current: emptyBoard(gridSize),

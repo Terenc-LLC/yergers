@@ -13,7 +13,7 @@ export default function App() {
   const [view, setView] = useState<AppView>('difficulty');
   const [puzzle, setPuzzle] = useState<GeneratedPuzzle | null>(null);
 
-  const handleSelectDifficulty = (size: 4 | 6 | 8) => {
+  const handleSelectDifficulty = (size: 4 | 5 | 6 | 8) => {
     setPuzzle(generatePuzzle(dailySeed(new Date()), size));
     setView('game');
   };
@@ -38,14 +38,14 @@ export default function App() {
       <footer className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">
         Last shipped:{' '}
         <a
-          href="https://linear.app/terenc/issue/TER-137"
+          href="https://linear.app/terenc/issue/TER-145"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:underline"
         >
-          TER-137
+          TER-145
         </a>{' '}
-        — Full game UI
+        — Difficulty ladder 4/5/6/8
       </footer>
     </>
   );

@@ -17,6 +17,11 @@ describe('cell count', () => {
     expect(screen.getAllByRole('button')).toHaveLength(16);
   });
 
+  it('renders 25 buttons for a 5×5 grid', () => {
+    render(<Grid board={makeBoard(5)} size={5} />);
+    expect(screen.getAllByRole('button')).toHaveLength(25);
+  });
+
   it('renders 36 buttons for a 6×6 grid', () => {
     render(<Grid board={makeBoard(6)} size={6} />);
     expect(screen.getAllByRole('button')).toHaveLength(36);
