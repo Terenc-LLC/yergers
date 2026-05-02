@@ -46,30 +46,30 @@ describe('cell background classes', () => {
     });
   });
 
-  it('red cells have bg-red-600 and no dark variant', () => {
+  it('red cells have bg-rygo-red and no dark variant', () => {
     const board = makeBoard(4, 'red');
     render(<Grid board={board} size={4} />);
     screen.getAllByRole('button').forEach(btn => {
-      expect(btn.className).toContain('bg-red-600');
-      expect(btn.className).not.toContain('dark:bg-red');
+      expect(btn.className).toContain('bg-rygo-red');
+      expect(btn.className).not.toContain('dark:bg-rygo-red');
     });
   });
 
-  it('yellow cells have bg-amber-400 and no dark variant', () => {
+  it('yellow cells have bg-rygo-yellow and no dark variant', () => {
     const board = makeBoard(4, 'yellow');
     render(<Grid board={board} size={4} />);
     screen.getAllByRole('button').forEach(btn => {
-      expect(btn.className).toContain('bg-amber-400');
-      expect(btn.className).not.toContain('dark:bg-amber');
+      expect(btn.className).toContain('bg-rygo-yellow');
+      expect(btn.className).not.toContain('dark:bg-rygo-yellow');
     });
   });
 
-  it('green cells have bg-green-600 and no dark variant', () => {
+  it('green cells have bg-rygo-green and no dark variant', () => {
     const board = makeBoard(4, 'green');
     render(<Grid board={board} size={4} />);
     screen.getAllByRole('button').forEach(btn => {
-      expect(btn.className).toContain('bg-green-600');
-      expect(btn.className).not.toContain('dark:bg-green');
+      expect(btn.className).toContain('bg-rygo-green');
+      expect(btn.className).not.toContain('dark:bg-rygo-green');
     });
   });
 });

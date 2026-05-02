@@ -61,7 +61,7 @@ export function GameScreen({ puzzle, onPickDifficulty }: GameScreenProps): JSX.E
       <div className="flex items-center justify-between w-full px-1 py-2">
         <div className="text-center min-w-16">
           <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Score</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100" data-testid="score-value">
+          <p className="text-2xl font-bold text-ink dark:text-paper" data-testid="score-value">
             {game.moveCount}
           </p>
         </div>
@@ -70,7 +70,7 @@ export function GameScreen({ puzzle, onPickDifficulty }: GameScreenProps): JSX.E
         </div>
         <div className="text-center min-w-16">
           <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Time</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100" data-testid="timer-value">
+          <p className="text-2xl font-bold text-ink dark:text-paper" data-testid="timer-value">
             {formatTime(game.elapsedMs)}
           </p>
         </div>
@@ -90,7 +90,7 @@ export function GameScreen({ puzzle, onPickDifficulty }: GameScreenProps): JSX.E
 
       <button
         onClick={handleRevealToggle}
-        className="w-full py-3 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold active:scale-95 transition-transform duration-100"
+        className="w-full py-3 rounded-xl bg-gray-200 dark:bg-gray-700 text-ink dark:text-paper font-semibold active:scale-95 transition-transform duration-100"
       >
         {game.patternVisible ? 'Hide / Start Solving' : 'Reveal Pattern'}
       </button>

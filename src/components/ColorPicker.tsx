@@ -14,9 +14,9 @@ const COLORS: {
   Shape: (props: { className?: string }) => JSX.Element;
   shapeCls: string;
 }[] = [
-  { color: 'red', bg: 'bg-red-600', label: 'Select red', Shape: Square, shapeCls: 'text-white' },
-  { color: 'yellow', bg: 'bg-amber-400', label: 'Select yellow', Shape: Triangle, shapeCls: 'text-gray-800' },
-  { color: 'green', bg: 'bg-green-600', label: 'Select green', Shape: Circle, shapeCls: 'text-white' },
+  { color: 'red', bg: 'bg-rygo-red', label: 'Select red', Shape: Square, shapeCls: 'text-paper' },
+  { color: 'yellow', bg: 'bg-rygo-yellow', label: 'Select yellow', Shape: Triangle, shapeCls: 'text-ink' },
+  { color: 'green', bg: 'bg-rygo-green', label: 'Select green', Shape: Circle, shapeCls: 'text-paper' },
 ];
 
 export function ColorPicker({ activeColor, onSelectColor }: ColorPickerProps): JSX.Element {

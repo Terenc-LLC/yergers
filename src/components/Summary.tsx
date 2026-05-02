@@ -25,21 +25,21 @@ function formatTime(ms: number): string {
 export function Summary({ gridSize, moveCount, elapsedMs, onPlayAgain, onPickDifficulty }: SummaryProps): JSX.Element {
   return (
     <div className="flex flex-col items-center gap-6 px-4 py-8 w-full max-w-sm mx-auto">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Puzzle Complete! 🎉</h2>
+      <h2 className="text-2xl font-bold text-ink dark:text-paper">Puzzle Complete! 🎉</h2>
       <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl p-6 w-full flex flex-col gap-4">
         <div className="text-center">
           <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Difficulty</p>
-          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{GRID_LABEL[gridSize]}</p>
+          <p className="text-lg font-semibold text-ink dark:text-paper">{GRID_LABEL[gridSize]}</p>
         </div>
         <div className="flex justify-around">
           <div className="text-center">
             <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Score</p>
-            <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">{moveCount}</p>
+            <p className="text-4xl font-bold text-ink dark:text-paper">{moveCount}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">moves</p>
           </div>
           <div className="text-center">
             <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Time</p>
-            <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">{formatTime(elapsedMs)}</p>
+            <p className="text-4xl font-bold text-ink dark:text-paper">{formatTime(elapsedMs)}</p>
           </div>
         </div>
       </div>
@@ -47,7 +47,7 @@ export function Summary({ gridSize, moveCount, elapsedMs, onPlayAgain, onPickDif
       <div className="flex gap-3 w-full">
         <button
           onClick={onPlayAgain}
-          className="flex-1 py-3 px-4 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold"
+          className="flex-1 py-3 px-4 rounded-xl bg-gray-200 dark:bg-gray-700 text-ink dark:text-paper font-semibold"
         >
           Play again
         </button>

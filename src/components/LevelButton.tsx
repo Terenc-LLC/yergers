@@ -18,7 +18,7 @@ export function LevelButton({ size, label, onSelect }: LevelButtonProps): JSX.El
   return (
     <button
       onClick={onSelect}
-      className="w-full py-5 px-6 rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 flex items-center justify-between active:scale-95 transition-transform duration-100"
+      className="w-full py-5 px-6 rounded-2xl bg-gray-100 dark:bg-gray-800 text-ink dark:text-paper flex items-center justify-between active:scale-95 transition-transform duration-100"
     >
       <div className="text-left">
         <p className="text-xl font-bold">{label}</p>
