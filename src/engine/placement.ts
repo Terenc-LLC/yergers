@@ -9,7 +9,9 @@
  *
  *   red    → { (row, col) }
  *   yellow → { (row, col) } ∪ up/down/left/right neighbours, clipped to grid bounds
- *   green  → full row(row) ∪ full col(col), intersection counted once → 2N−1 cells on N×N
+ *   green  → the placed cell, then propagates in each cardinal direction; propagation
+ *            stops at the first non-empty cell (blocker excluded) or the grid edge.
+ *            Green's reach is board-state-dependent.
  */
 
 import type { Board, CellState, Color } from './types';
@@ -20,13 +22,11 @@ function canOverwrite(existing: CellState, placing: Color): boolean {
   return existing === 'empty';
 }
 
-function targetCells(
-  rows: number,
-  cols: number,
-  color: Color,
-  row: number,
-  col: number,
-): [number, number][] {
+// Exported so clearColor (TER-147) can reuse the same reach logic.
+export function reachCells(board: Board, color: Color, row: number, col: number): [number, number][] {
+  const rows = board.length;
+  const cols = board[0].length;
+
   if (color === 'red') {
     return [[row, col]];
   }
@@ -41,10 +41,26 @@ function targetCells(
       ] as [number, number][]
     ).filter(([r, c]) => r >= 0 && r < rows && c >= 0 && c < cols);
   }
-  // green: full row + full column; row×col intersection is included via the row pass
-  const cells: [number, number][] = [];
-  for (let c = 0; c < cols; c++) cells.push([row, c]);
-  for (let r = 0; r < rows; r++) if (r !== row) cells.push([r, col]);
+  // green: placed cell always included; propagate outward in each cardinal direction,
+  // stopping before the first non-empty cell. Reach is computed on the original board
+  // so pre-existing blockers halt propagation regardless of what applyMove writes.
+  const cells: [number, number][] = [[row, col]];
+  for (let r = row - 1; r >= 0; r--) {
+    if (board[r][col] !== 'empty') break;
+    cells.push([r, col]);
+  }
+  for (let r = row + 1; r < rows; r++) {
+    if (board[r][col] !== 'empty') break;
+    cells.push([r, col]);
+  }
+  for (let c = col - 1; c >= 0; c--) {
+    if (board[row][c] !== 'empty') break;
+    cells.push([row, c]);
+  }
+  for (let c = col + 1; c < cols; c++) {
+    if (board[row][c] !== 'empty') break;
+    cells.push([row, c]);
+  }
   return cells;
 }
 
@@ -61,7 +77,7 @@ export function applyMove(board: Board, color: Color, row: number, col: number):
   }
 
   const next: Board = board.map(r => [...r]);
-  for (const [r, c] of targetCells(rows, cols, color, row, col)) {
+  for (const [r, c] of reachCells(board, color, row, col)) {
     if (canOverwrite(next[r][c], color)) {
       next[r][c] = color;
     }
