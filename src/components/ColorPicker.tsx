@@ -34,7 +34,7 @@ export function ColorPicker({ activeColor, onSelectColor }: ColorPickerProps): J
               'w-16 h-16 rounded-xl flex items-center justify-center transition-all duration-100',
               bg,
               isActive
-                ? 'ring-4 ring-white dark:ring-gray-100 ring-offset-2 ring-offset-white dark:ring-offset-gray-950'
+                ? 'ring-4 ring-blue-500 ring-offset-2 ring-offset-paper dark:ring-offset-ink'
                 : '',
             ].join(' ')}
           >

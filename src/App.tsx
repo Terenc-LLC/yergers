@@ -38,14 +38,14 @@ export default function App() {
       <footer className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">
         Last shipped:{' '}
         <a
-          href="https://linear.app/terenc/issue/TER-152"
+          href="https://linear.app/terenc/issue/TER-148"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:underline"
         >
-          TER-152
+          TER-148
         </a>{' '}
-        — RYGO brand palette
+        — UX cleanup
       </footer>
     </>
   );
