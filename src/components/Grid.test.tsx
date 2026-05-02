@@ -74,11 +74,11 @@ describe('cell background classes', () => {
 // ---------------------------------------------------------------------------
 
 describe('shape rendering', () => {
-  it('red cells render an Octagon', () => {
+  it('red cells render a Square', () => {
     const board = makeBoard(4, 'red');
     render(<Grid board={board} size={4} />);
     screen.getAllByRole('button').forEach(btn => {
-      expect(btn.querySelector('[data-testid="shape-octagon"]')).not.toBeNull();
+      expect(btn.querySelector('[data-testid="shape-square"]')).not.toBeNull();
     });
   });
 
@@ -118,7 +118,7 @@ describe('shape rendering', () => {
     for (let row = 0; row < 4; row++) {
       const base = row * 4;
       expect(btns[base + 0].querySelector('svg')).toBeNull(); // empty
-      expect(btns[base + 1].querySelector('[data-testid="shape-octagon"]')).not.toBeNull(); // red
+      expect(btns[base + 1].querySelector('[data-testid="shape-square"]')).not.toBeNull(); // red
       expect(btns[base + 2].querySelector('[data-testid="shape-triangle"]')).not.toBeNull(); // yellow
       expect(btns[base + 3].querySelector('[data-testid="shape-circle"]')).not.toBeNull(); // green
     }
