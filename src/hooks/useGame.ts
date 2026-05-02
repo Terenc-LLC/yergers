@@ -1,7 +1,7 @@
 import { useReducer, useEffect, useRef, useCallback } from 'react';
 import type { Board, Color } from '../engine/types';
 import type { GeneratedPuzzle } from '../engine/generator';
-import { applyMove } from '../engine/placement';
+import { applyMove, applyClear } from '../engine/placement';
 
 export type GamePhase = 'idle' | 'pattern-revealed' | 'playing' | 'complete';
 
@@ -87,6 +87,14 @@ function reducer(state: GameState, action: Action): GameState {
     }
     case 'PLACE_AT': {
       if (state.phase !== 'playing' || state.activeColor === null) return state;
+      if (state.current[action.row][action.col] === state.activeColor) {
+        // Same-color tap: clear via this color's reach; cannot complete the puzzle.
+        return {
+          ...state,
+          current: applyClear(state.current, state.activeColor, action.row, action.col),
+          moveCount: state.moveCount + 1,
+        };
+      }
       const newBoard = applyMove(state.current, state.activeColor, action.row, action.col);
       const isComplete = boardsMatch(newBoard, action.target);
       return {
