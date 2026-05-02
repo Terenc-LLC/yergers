@@ -20,7 +20,7 @@ describe('useTheme', () => {
   });
 
   it('persisted theme overrides the default', () => {
-    localStorage.setItem('yergers:theme', 'light');
+    localStorage.setItem('rygo:theme', 'light');
     const { result } = renderHook(() => useTheme());
     expect(result.current.theme).toBe('light');
     expect(document.documentElement.classList.contains('dark')).toBe(false);
@@ -33,11 +33,26 @@ describe('useTheme', () => {
     act(() => { result.current.toggleTheme(); });
     expect(result.current.theme).toBe('light');
     expect(document.documentElement.classList.contains('dark')).toBe(false);
-    expect(localStorage.getItem('yergers:theme')).toBe('light');
+    expect(localStorage.getItem('rygo:theme')).toBe('light');
 
     act(() => { result.current.toggleTheme(); });
     expect(result.current.theme).toBe('dark');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
-    expect(localStorage.getItem('yergers:theme')).toBe('dark');
+    expect(localStorage.getItem('rygo:theme')).toBe('dark');
+  });
+
+  it('migrates yergers:theme to rygo:theme on first load', () => {
+    localStorage.setItem('yergers:theme', 'light');
+    renderHook(() => useTheme());
+    expect(localStorage.getItem('rygo:theme')).toBe('light');
+    expect(localStorage.getItem('yergers:theme')).toBeNull();
+  });
+
+  it('does not overwrite existing rygo:theme during migration', () => {
+    localStorage.setItem('yergers:theme', 'light');
+    localStorage.setItem('rygo:theme', 'dark');
+    renderHook(() => useTheme());
+    expect(localStorage.getItem('rygo:theme')).toBe('dark');
+    expect(localStorage.getItem('yergers:theme')).toBe('light');
   });
 });

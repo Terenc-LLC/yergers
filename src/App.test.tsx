@@ -18,7 +18,7 @@ describe('App', () => {
 
   it('starts on the difficulty picker', () => {
     render(<App />);
-    expect(screen.getByText('Yergers')).toBeInTheDocument();
+    expect(screen.getAllByAltText('RYGO')[0]).toBeInTheDocument();
     expect(screen.getByText('Easy')).toBeInTheDocument();
     expect(screen.getByText('Normal')).toBeInTheDocument();
     expect(screen.getByText('Hard')).toBeInTheDocument();

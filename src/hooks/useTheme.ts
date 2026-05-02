@@ -2,7 +2,15 @@ import { useState, useEffect } from 'react';
 
 export type Theme = 'dark' | 'light';
 
-const STORAGE_KEY = 'yergers:theme';
+const STORAGE_KEY = 'rygo:theme';
+
+function migrateLegacyKeys() {
+  const legacy = localStorage.getItem('yergers:theme');
+  if (legacy !== null && localStorage.getItem('rygo:theme') === null) {
+    localStorage.setItem('rygo:theme', legacy);
+    localStorage.removeItem('yergers:theme');
+  }
+}
 
 function applyTheme(theme: Theme) {
   if (theme === 'dark') {
@@ -18,6 +26,7 @@ export function useTheme(): {
   setTheme: (t: Theme) => void;
 } {
   const [theme, setThemeState] = useState<Theme>(() => {
+    migrateLegacyKeys();
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored === 'light' ? 'light' : 'dark';
   });

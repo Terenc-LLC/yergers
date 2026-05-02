@@ -18,8 +18,9 @@ export function DifficultyPicker({ onSelect, onShowStats }: DifficultyPickerProp
     <div className="flex flex-col items-center gap-6 px-4 py-8 w-full max-w-sm mx-auto">
       <div className="flex items-center justify-between w-full">
         <div className="w-10" />
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">Yergers</h1>
+        <div className="px-6">
+          <img src="/rygo-lockup-light.svg" alt="RYGO" className="h-16 dark:hidden" />
+          <img src="/rygo-lockup-dark.svg" alt="RYGO" className="h-16 hidden dark:block" />
         </div>
         {/* Stats slot reserved for TER-143 */}
         <button

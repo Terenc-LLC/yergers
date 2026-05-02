@@ -104,8 +104,8 @@ describe('generatePuzzle — non-triviality (1000 puzzles)', () => {
 });
 
 describe('dailySeed', () => {
-  it('returns YERGERS-YYYY-MM-DD format', () => {
-    expect(dailySeed(new Date('2026-05-01T00:00:00Z'))).toBe('YERGERS-2026-05-01');
+  it('returns RYGO-YYYY-MM-DD format', () => {
+    expect(dailySeed(new Date('2026-05-01T00:00:00Z'))).toBe('RYGO-2026-05-01');
   });
 
   it('is stable for any time of day on the same UTC date', () => {
@@ -123,6 +123,6 @@ describe('dailySeed', () => {
   });
 
   it('pads month and day with leading zeros', () => {
-    expect(dailySeed(new Date('2026-01-05T00:00:00Z'))).toBe('YERGERS-2026-01-05');
+    expect(dailySeed(new Date('2026-01-05T00:00:00Z'))).toBe('RYGO-2026-01-05');
   });
 });
