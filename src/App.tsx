@@ -23,7 +23,7 @@ export default function App() {
       <div className="fixed top-0 right-0 z-50 p-3 pt-[env(safe-area-inset-top,12px)] pr-[env(safe-area-inset-right,12px)]">
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
       </div>
-      <main className="min-h-screen bg-white dark:bg-gray-950 pt-14 pb-8">
+      <main className="min-h-screen bg-paper dark:bg-ink pt-14 pb-8">
         {view === 'difficulty' && (
           <DifficultyPicker onSelect={handleSelectDifficulty} />
         )}
@@ -38,14 +38,14 @@ export default function App() {
       <footer className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">
         Last shipped:{' '}
         <a
-          href="https://linear.app/terenc/issue/TER-147"
+          href="https://linear.app/terenc/issue/TER-152"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:underline"
         >
-          TER-147
+          TER-152
         </a>{' '}
-        — same-color clearing
+        — RYGO brand palette
       </footer>
     </>
   );

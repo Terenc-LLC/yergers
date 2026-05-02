@@ -1,2 +1,10 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-ink: #14110E;
+  --color-paper: #F5F3EE;
+  --color-rygo-red: #D8463A;
+  --color-rygo-yellow: #E6B73B;
+  --color-rygo-green: #2E9D5C;
+}

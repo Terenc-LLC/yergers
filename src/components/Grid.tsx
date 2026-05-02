@@ -24,17 +24,17 @@ const STATE_LABEL: Record<CellState, string> = {
 
 const CELL_BG: Record<CellState, string> = {
   empty: 'bg-gray-100 dark:bg-gray-800',
-  red: 'bg-red-600',
-  yellow: 'bg-amber-400',
-  green: 'bg-green-600',
+  red: 'bg-rygo-red',
+  yellow: 'bg-rygo-yellow',
+  green: 'bg-rygo-green',
 };
 
 // Shape fill is via text-* so SVG fill="currentColor" picks it up.
 const SHAPE_TEXT: Record<CellState, string> = {
   empty: '',
-  red: 'text-white',
-  yellow: 'text-gray-800',
-  green: 'text-white',
+  red: 'text-paper',
+  yellow: 'text-ink',
+  green: 'text-paper',
 };
 
 function CellShape({ state }: { state: CellState }) {
