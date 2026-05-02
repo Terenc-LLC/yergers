@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyMove } from './placement';
+import { applyMove, clearCells, applyClear } from './placement';
 import { generatePuzzle } from './generator';
 import type { Board } from './types';
 
@@ -296,6 +296,170 @@ describe('out-of-bounds — throws RangeError', () => {
 
   it('col >= cols', () => {
     expect(() => applyMove(emptyBoard(3, 3), 'red', 0, 3)).toThrow(RangeError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Clearing — red
+// ---------------------------------------------------------------------------
+
+describe('clearCells / applyClear — red', () => {
+  it('red clear: empties just the tapped cell', () => {
+    const board = emptyBoard(3, 3);
+    board[1][1] = 'red';
+    const result = applyClear(board, 'red', 1, 1);
+    expect(result[1][1]).toBe('empty');
+    expect(result.flat().filter(c => c !== 'empty')).toHaveLength(0);
+  });
+
+  it('red clearCells: returns only the tapped cell', () => {
+    const board = emptyBoard(3, 3);
+    board[1][1] = 'red';
+    expect(clearCells(board, 'red', 1, 1)).toEqual([[1, 1]]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Clearing — yellow
+// ---------------------------------------------------------------------------
+
+describe('clearCells / applyClear — yellow', () => {
+  it('mixed neighbors: only yellow cells in the plus footprint clear', () => {
+    // (1,1)=yellow, (0,1)=green, (2,1)=red, (1,0)=empty, (1,2)=yellow
+    const board = emptyBoard(3, 3);
+    board[1][1] = 'yellow';
+    board[0][1] = 'green';
+    board[2][1] = 'red';
+    board[1][2] = 'yellow';
+    const result = applyClear(board, 'yellow', 1, 1);
+    expect(result[1][1]).toBe('empty'); // tapped cell cleared
+    expect(result[1][2]).toBe('empty'); // yellow neighbor cleared
+    expect(result[0][1]).toBe('green'); // green neighbor untouched
+    expect(result[2][1]).toBe('red');   // red neighbor untouched
+    expect(result[1][0]).toBe('empty'); // was already empty, still empty
+  });
+
+  it('edge clip: plus footprint clipped correctly at (0, 0)', () => {
+    const board = emptyBoard(3, 3);
+    board[0][0] = 'yellow';
+    board[1][0] = 'yellow';
+    board[0][1] = 'yellow';
+    const result = applyClear(board, 'yellow', 0, 0);
+    expect(result[0][0]).toBe('empty');
+    expect(result[1][0]).toBe('empty');
+    expect(result[0][1]).toBe('empty');
+    // No out-of-bounds cells touched
+    expect(result[1][1]).toBe('empty');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Clearing — green
+// ---------------------------------------------------------------------------
+
+describe('clearCells / applyClear — green', () => {
+  it('single isolated green cell: only that cell clears', () => {
+    const board = emptyBoard(3, 3);
+    board[1][1] = 'green';
+    const result = applyClear(board, 'green', 1, 1);
+    expect(result[1][1]).toBe('empty');
+    expect(result.flat().filter(c => c !== 'empty')).toHaveLength(0);
+  });
+
+  it('5 contiguous green cells in a row: all 5 clear', () => {
+    // row 2, cols 0-4 all green; tap at (2,2)
+    const board = emptyBoard(3, 5);
+    for (let c = 0; c < 5; c++) board[2][c] = 'green';
+    const result = applyClear(board, 'green', 2, 2);
+    for (let c = 0; c < 5; c++) expect(result[2][c]).toBe('empty');
+  });
+
+  it('green cells separated by empty: propagation stops at empty, gap-jumped greens do NOT clear', () => {
+    // col 1: (0,1)=green, (1,1)=green, (2,1)=empty, (3,1)=green; tap at (0,1)
+    const board = emptyBoard(4, 3);
+    board[0][1] = 'green';
+    board[1][1] = 'green';
+    board[3][1] = 'green';
+    const result = applyClear(board, 'green', 0, 1);
+    expect(result[0][1]).toBe('empty'); // tapped, cleared
+    expect(result[1][1]).toBe('empty'); // contiguous below, cleared
+    expect(result[2][1]).toBe('empty'); // was empty, still empty
+    expect(result[3][1]).toBe('green'); // gap-jumped, NOT cleared
+  });
+
+  it('blocked by yellow: blocker not cleared, cells beyond not cleared', () => {
+    // row 1: (1,0)=green, (1,1)=green, (1,2)=yellow, (1,3)=green; tap at (1,0)
+    const board = emptyBoard(3, 4);
+    board[1][0] = 'green';
+    board[1][1] = 'green';
+    board[1][2] = 'yellow';
+    board[1][3] = 'green';
+    const result = applyClear(board, 'green', 1, 0);
+    expect(result[1][0]).toBe('empty');  // tapped, cleared
+    expect(result[1][1]).toBe('empty');  // contiguous, cleared
+    expect(result[1][2]).toBe('yellow'); // blocker, untouched
+    expect(result[1][3]).toBe('green');  // beyond blocker, untouched
+  });
+
+  it('blocked by red: blocker not cleared, cells beyond not cleared', () => {
+    // col 0: (0,0)=green, (1,0)=green, (2,0)=red, (3,0)=green; tap at (0,0)
+    const board = emptyBoard(4, 3);
+    board[0][0] = 'green';
+    board[1][0] = 'green';
+    board[2][0] = 'red';
+    board[3][0] = 'green';
+    const result = applyClear(board, 'green', 0, 0);
+    expect(result[0][0]).toBe('empty'); // tapped, cleared
+    expect(result[1][0]).toBe('empty'); // contiguous, cleared
+    expect(result[2][0]).toBe('red');   // blocker, untouched
+    expect(result[3][0]).toBe('green'); // beyond blocker, untouched
+  });
+
+  it('corner (0,0): propagation in two valid cardinal directions only', () => {
+    // All of row 0 and col 0 are green; tap at (0,0)
+    const board = emptyBoard(4, 4);
+    for (let r = 0; r < 4; r++) board[r][0] = 'green';
+    for (let c = 0; c < 4; c++) board[0][c] = 'green';
+    const result = applyClear(board, 'green', 0, 0);
+    // Downward: (1,0),(2,0),(3,0) all cleared
+    for (let r = 0; r < 4; r++) expect(result[r][0]).toBe('empty');
+    // Rightward: (0,1),(0,2),(0,3) all cleared
+    for (let c = 0; c < 4; c++) expect(result[0][c]).toBe('empty');
+    // Other cells unaffected
+    expect(result[1][1]).toBe('empty');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Clearing — misuse / out-of-bounds errors
+// ---------------------------------------------------------------------------
+
+describe('clearCells / applyClear — error handling', () => {
+  it('clearCells throws Error when cell is not the expected color', () => {
+    const board = emptyBoard(3, 3);
+    board[1][1] = 'yellow';
+    expect(() => clearCells(board, 'red', 1, 1)).toThrow(Error);
+  });
+
+  it('applyClear throws Error when cell is not the expected color', () => {
+    const board = emptyBoard(3, 3);
+    board[1][1] = 'green';
+    expect(() => applyClear(board, 'yellow', 1, 1)).toThrow(Error);
+  });
+
+  it('clearCells throws RangeError on negative row', () => {
+    const board = emptyBoard(3, 3);
+    expect(() => clearCells(board, 'red', -1, 0)).toThrow(RangeError);
+  });
+
+  it('clearCells throws RangeError on col >= cols', () => {
+    const board = emptyBoard(3, 3);
+    expect(() => clearCells(board, 'red', 0, 3)).toThrow(RangeError);
+  });
+
+  it('applyClear throws RangeError on out-of-bounds', () => {
+    const board = emptyBoard(3, 3);
+    expect(() => applyClear(board, 'red', 3, 0)).toThrow(RangeError);
   });
 });
 

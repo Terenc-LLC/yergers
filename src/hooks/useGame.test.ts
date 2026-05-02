@@ -143,6 +143,37 @@ describe('useGame', () => {
     expect(result.current.elapsedMs).toBeLessThanOrEqual(elapsedAtCompletion + 100);
   });
 
+  it('tapping a same-color cell clears it and increments moveCount', () => {
+    const { result } = renderHook(() => useGame(makeTestPuzzle()));
+
+    act(() => { result.current.revealPattern(); });
+    act(() => { result.current.hidePattern(); });
+    act(() => { result.current.selectColor('red'); });
+    // Place red at (1,1)
+    act(() => { result.current.placeAt(1, 1); });
+    expect(result.current.current[1][1]).toBe('red');
+    expect(result.current.moveCount).toBe(1);
+
+    // Tap (1,1) again with red active → clearing branch
+    act(() => { result.current.placeAt(1, 1); });
+    expect(result.current.current[1][1]).toBe('empty');
+    expect(result.current.moveCount).toBe(2);
+    expect(result.current.phase).toBe('playing');
+  });
+
+  it('tapping a different-color cell still places (regression)', () => {
+    const { result } = renderHook(() => useGame(makeTestPuzzle()));
+
+    act(() => { result.current.revealPattern(); });
+    act(() => { result.current.hidePattern(); });
+    act(() => { result.current.selectColor('red'); });
+    // Tap (2,2) which is empty — not same color as active (empty !== red) → placement path
+    act(() => { result.current.placeAt(2, 2); });
+    expect(result.current.current[2][2]).toBe('red');
+    expect(result.current.moveCount).toBe(1);
+    expect(result.current.phase).toBe('playing');
+  });
+
   it('reset returns to idle with cleared counters and empty board', () => {
     const { result } = renderHook(() => useGame(makeTestPuzzle()));
 
