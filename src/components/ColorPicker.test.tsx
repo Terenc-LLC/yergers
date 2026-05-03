@@ -27,4 +27,13 @@ describe('ColorPicker', () => {
     expect(screen.getByLabelText('Select yellow')).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByLabelText('Select green')).toHaveAttribute('aria-pressed', 'false');
   });
+
+  it('active button has the contrasting ring class visible in both themes', () => {
+    render(<ColorPicker activeColor="green" onSelectColor={vi.fn()} />);
+    const greenBtn = screen.getByLabelText('Select green');
+    expect(greenBtn).toHaveClass('ring-blue-500');
+    expect(greenBtn).toHaveClass('ring-offset-paper');
+    // Non-active buttons do not have the ring
+    expect(screen.getByLabelText('Select red')).not.toHaveClass('ring-blue-500');
+  });
 });

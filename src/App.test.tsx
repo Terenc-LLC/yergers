@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import App from './App';
 
@@ -38,6 +38,7 @@ describe('App', () => {
     fireEvent.click(screen.getByText('Normal'));
     // Reveal the pattern so cells are in the DOM
     fireEvent.click(screen.getByText('Reveal Pattern'));
+    act(() => vi.advanceTimersByTime(1000));
     const cells = screen.getAllByRole('button', { name: /cell at row/i });
     expect(cells).toHaveLength(25);
   });

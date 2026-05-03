@@ -58,11 +58,9 @@ export function Grid({ board, onCellTap, size }: GridProps): JSX.Element {
             disabled={!interactive}
             onClick={interactive ? () => onCellTap(rowIdx, colIdx) : undefined}
             className={[
-              'aspect-square rounded-md flex items-center justify-center',
+              'aspect-square rounded-md flex items-center justify-center transition-[transform,background-color,color] duration-150',
               CELL_BG[state],
-              interactive
-                ? 'cursor-pointer active:scale-95 transition-transform duration-100'
-                : 'cursor-default',
+              interactive ? 'cursor-pointer active:scale-95' : 'cursor-default',
             ].join(' ')}
           >
             <CellShape state={state} />
