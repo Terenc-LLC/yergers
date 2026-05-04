@@ -29,12 +29,12 @@ function hashSeed(s: string): number {
   return h;
 }
 
-// Color weights: red 0.45, yellow 0.40, green 0.15.
-// Green is downweighted because it cascades widely (full row + column),
-// making all-one-color boards much more likely when green dominates.
-// These are starting values to be tuned by playtesting.
-const RED_THRESHOLD = 0.45;
-const YELLOW_THRESHOLD = 0.85; // red + yellow = 0.45 + 0.40
+// Color weights: red 0.40, yellow 0.40, green 0.20.
+// Green raised from 0.15 to 0.20: TER-149 blocking limits green's effective reach on
+// non-empty boards, so green needs a higher draw probability to appear reliably.
+// Starting hypothesis only — retune with real-play data.
+const RED_THRESHOLD = 0.40;
+const YELLOW_THRESHOLD = 0.80; // red + yellow = 0.40 + 0.40
 
 function sampleColor(rng: () => number): Color {
   const r = rng();
@@ -56,7 +56,8 @@ function boardsEqual(a: Board, b: Board): boolean {
   return true;
 }
 
-// Trivial-puzzle rejection criteria:
+// Trivial-puzzle rejection (kept as defense-in-depth; some checks cannot trigger
+// under full-coverage + all-3-colors rules but are retained for safety):
 //   1. All cells are empty.
 //   2. All cells are the same non-empty color.
 //   3. More than 85% of cells are a single color.
@@ -80,21 +81,40 @@ function isTrivial(target: Board, solution: Move[], size: number): boolean {
   return false;
 }
 
-const MOVE_RANGE: Record<4 | 5 | 6 | 8, [number, number]> = {
-  4: [4, 7],
-  5: [5, 9],
-  6: [6, 10],
-  8: [8, 14],
+// Starting solution-length ranges (v1.4). The generator draws a starting L from this
+// range, then appends additional moves until full coverage + all 3 colors are met.
+export const MOVE_RANGE: Record<4 | 5 | 6 | 8, [number, number]> = {
+  4: [6, 10],
+  5: [8, 12],
+  6: [10, 16],
+  8: [14, 22],
 };
+
+// Maximum total solution length (starting L + all appended moves).
+// If this cap is reached before the board satisfies all constraints, abort and retry.
+export const MOVE_CAP: Record<4 | 5 | 6 | 8, number> = {
+  4: 14,
+  5: 18,
+  6: 24,
+  8: 36,
+};
+
+// Test instrumentation: counts puzzles that required more than one attempt.
+// Reset before a bulk test run; read after to assess cap-exceeded rate.
+let _capExceededPuzzleCount = 0;
+export function _resetCapStats(): void { _capExceededPuzzleCount = 0; }
+export function _getCapExceededPuzzleCount(): number { return _capExceededPuzzleCount; }
 
 function tryGenerate(seed: string, gridSize: 4 | 5 | 6 | 8, attempt: number): GeneratedPuzzle | null {
   // Each attempt uses a distinct internal RNG seed so retries explore different boards.
   const rng = mulberry32(hashSeed(`${seed}/${attempt}`));
   const [minMoves, maxMoves] = MOVE_RANGE[gridSize];
-  const numMoves = minMoves + Math.floor(rng() * (maxMoves - minMoves + 1));
+  const startingL = minMoves + Math.floor(rng() * (maxMoves - minMoves + 1));
+  const cap = MOVE_CAP[gridSize];
 
+  // Phase 1: Generate startingL random moves.
   const solution: Move[] = [];
-  for (let i = 0; i < numMoves; i++) {
+  for (let i = 0; i < startingL; i++) {
     solution.push({
       color: sampleColor(rng),
       row: Math.floor(rng() * gridSize),
@@ -102,20 +122,84 @@ function tryGenerate(seed: string, gridSize: 4 | 5 | 6 | 8, attempt: number): Ge
     });
   }
 
-  let target = emptyBoard(gridSize);
-  for (const move of solution) {
-    target = applyMove(target, move.color, move.row, move.col);
+  // Phase 2: Append moves until full coverage + all 3 colors, or cap exceeded.
+  // Re-simulates from scratch on each iteration (simpler than incremental updates).
+  // Phase A: cover empty cells first. Phase B: fix missing colors.
+  // Empty cells are selected randomly (not scan order) to preserve board entropy.
+  while (true) {
+    let target = emptyBoard(gridSize);
+    for (const move of solution) {
+      target = applyMove(target, move.color, move.row, move.col);
+    }
+
+    const emptyCells: [number, number][] = [];
+    const colorPresent = { red: false, yellow: false, green: false };
+    for (let r = 0; r < gridSize; r++) {
+      for (let c = 0; c < gridSize; c++) {
+        const cell = target[r][c];
+        if (cell === 'empty') {
+          emptyCells.push([r, c]);
+        } else {
+          colorPresent[cell] = true;
+        }
+      }
+    }
+
+    const fullyCovered = emptyCells.length === 0;
+    const allThreeColors = colorPresent.red && colorPresent.yellow && colorPresent.green;
+
+    if (fullyCovered && allThreeColors) {
+      if (isTrivial(target, solution, gridSize)) return null;
+      return { target, solution, gridSize, seed };
+    }
+
+    if (solution.length >= cap) return null;
+
+    if (emptyCells.length > 0) {
+      // Phase A: pick a random empty cell and append a random-color move.
+      const idx = Math.floor(rng() * emptyCells.length);
+      const [row, col] = emptyCells[idx];
+      solution.push({ color: sampleColor(rng), row, col });
+    } else {
+      // Phase B: board is fully covered but a color is missing.
+      // Priority order: red → yellow → green (first missing in that order).
+      const missingColor: Color = !colorPresent.red ? 'red' : !colorPresent.yellow ? 'yellow' : 'green';
+
+      // Find cells where placing missingColor would be effective:
+      //   red    → overwrites any cell (red > all)
+      //   yellow → overwrites green cells (yellow > green; no empties remain)
+      //   green  → overwrites empty only; no empties in a fully-covered board → no candidates
+      // Skip cells already holding missingColor (placement would be a no-op for them).
+      const candidates: [number, number][] = [];
+      for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
+          const cell = target[r][c];
+          if (cell === missingColor) continue;
+          if (missingColor === 'red') {
+            candidates.push([r, c]);
+          } else if (missingColor === 'yellow' && cell === 'green') {
+            candidates.push([r, c]);
+          }
+          // green: no candidates when board is fully covered → fall through to return null
+        }
+      }
+
+      if (candidates.length === 0) return null;
+
+      const idx = Math.floor(rng() * candidates.length);
+      const [row, col] = candidates[idx];
+      solution.push({ color: missingColor, row, col });
+    }
   }
-
-  if (isTrivial(target, solution, gridSize)) return null;
-
-  return { target, solution, gridSize, seed };
 }
 
 export function generatePuzzle(seed: string, gridSize: 4 | 5 | 6 | 8): GeneratedPuzzle {
   for (let attempt = 0; attempt < 1000; attempt++) {
     const result = tryGenerate(seed, gridSize, attempt);
-    if (result !== null) return result;
+    if (result !== null) {
+      if (attempt > 0) _capExceededPuzzleCount++;
+      return result;
+    }
   }
   throw new Error(`generatePuzzle: could not produce a non-trivial puzzle for seed "${seed}" after 1000 attempts`);
 }
