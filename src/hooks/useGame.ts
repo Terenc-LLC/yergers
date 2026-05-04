@@ -78,12 +78,13 @@ function reducer(state: GameState, action: Action): GameState {
     }
     case 'HIDE_PATTERN': {
       if (state.phase === 'pattern-revealed') {
-        return { ...state, phase: 'playing' };
+        return { ...state, phase: 'playing', moveCount: state.moveCount + 1 };
       }
       return state;
     }
     case 'SELECT_COLOR': {
-      return { ...state, activeColor: action.color };
+      if (state.activeColor === action.color) return state;
+      return { ...state, activeColor: action.color, moveCount: state.moveCount + 1 };
     }
     case 'PLACE_AT': {
       if (state.phase !== 'playing' || state.activeColor === null) return state;

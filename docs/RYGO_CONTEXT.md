@@ -288,7 +288,7 @@ export function useGame(puzzle: GeneratedPuzzle): GameView & GameActions;
 
 **Notes (May 2, 2026):**
 
-* [TER-150](https://linear.app/terenc/issue/TER-150) updates the move-counting logic in the reducer: `SELECT_COLOR` to a different color → +1, `HIDE_PATTERN` → +1, `REVEAL_PATTERN` after first → +1 (already there), `PLACE_AT` → +1 (already there). `SELECT_COLOR` to the same color → 0. Same-color clearing ([TER-147](https://linear.app/terenc/issue/TER-147)) → +1.
+* **[TER-150](https://linear.app/terenc/issue/TER-150) shipped (May 3, 2026):** Every-click-counts scoring now fully implemented. `SELECT_COLOR` to a different color → +1; re-selecting the same color → 0 (no-op, returns state unchanged). `HIDE_PATTERN` → +1 (added here). `REVEAL_PATTERN` after first → +1 (already there). `PLACE_AT` → +1 (already there). Same-color clearing ([TER-147](https://linear.app/terenc/issue/TER-147)) → +1. 15 unit tests (was 9); 126 total passing.
 * [TER-147](https://linear.app/terenc/issue/TER-147) adds clearing semantics (shipped May 2, 2026): `PLACE_AT` branches on `state.current[row][col] === state.activeColor` — true calls `applyClear`, increments `moveCount` by 1, no completion check; false follows existing placement path unchanged.
 * [TER-153](https://linear.app/terenc/issue/TER-153) adds the `'validating'` phase and `completeValidation` action: when the boards match, phase goes to `'validating'` (timer freezes), GameScreen runs a 750–1000ms visual sweep, then dispatches `COMPLETE_VALIDATION` to flip phase to `'complete'`.
 
@@ -384,7 +384,7 @@ Brand tokens defined in `src/index.css` via `@theme` block. Shipped in [TER-152]
 * [TER-147](https://linear.app/terenc/issue/TER-147) — ✅ Done. Same-color clearing mechanic (engine + hook).
 * [TER-152](https://linear.app/terenc/issue/TER-152) — ✅ Done. RYGO brand palette tokens (Tailwind v4 `@theme` block, swap utilities to brand tokens, contrast verification).
 * [TER-148](https://linear.app/terenc/issue/TER-148) — ✅ Done. Game-screen UX cleanup (quit dialog removed, Restart button, light-mode active-ring fix, transition blank, click-feedback).
-* [TER-150](https://linear.app/terenc/issue/TER-150) — Every-click-counts scoring (color switch, hide pattern). ✅ Unblocked.
+* [TER-150](https://linear.app/terenc/issue/TER-150) — Every-click-counts scoring (color switch, hide pattern). ✅ In Review.
 * [TER-146](https://linear.app/terenc/issue/TER-146) — Generator: full coverage + all 3 colors required + retune. ✅ Unblocked (design pass pending).
 * [TER-153](https://linear.app/terenc/issue/TER-153) — Win-state validation sequence (`'validating'` GamePhase + 750–1000ms sweep + RYGO mark glow before Summary). Design pass pending.
 
@@ -570,3 +570,7 @@ Locked-section updates absorbed in this PR:
 **Linear documents:** scheduled for deletion after this PR merges. Linear `get_document` calls against the three legacy doc IDs (RYGO_CONTEXT, GDD, Process) will fail starting then; switch to `GitHub:get_file_contents` for all three.
 
 **Next recommended:** [TER-150](https://linear.app/terenc/issue/TER-150) (every-click-counts scoring) — locked spec, narrow blast radius (touches `useGame` reducer + tests). For a parallel design slot, [TER-146](https://linear.app/terenc/issue/TER-146) generator rewrite or [TER-153](https://linear.app/terenc/issue/TER-153) validation sweep are the two M2 issues still needing design passes.
+
+### 2026-05-03 — [TER-150](https://linear.app/terenc/issue/TER-150) Every-click-counts scoring (Claude Code / Sonnet 4.6)
+
+Updated `SELECT_COLOR` and `HIDE_PATTERN` reducer cases in `src/hooks/useGame.ts` to charge +1 move. `SELECT_COLOR` to the already-active color returns state unchanged (no charge). `HIDE_PATTERN` now increments `moveCount` by 1. No changes to `REVEAL_PATTERN`, `PLACE_AT`, or the hook's public interface. 6 existing tests updated to match new scoring rules; 6 new tests added covering HIDE_PATTERN charge, SELECT_COLOR no-op, SELECT_COLOR sequences, and the full 8-move realistic sequence. 126 tests passing; build clean. PR opened against main.
