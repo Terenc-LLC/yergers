@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 748 424" width="748" height="424">
+  <defs></defs>
+  <rect width="748" height="424" fill="#14110E"></rect>
+  <g transform="translate(80, 80)">
+    <svg viewBox="0 0 48 132" width="96" height="264">
+      <rect x="1.25" y="1.25" width="45.5" height="129.5" rx="6" ry="6" fill="none" stroke="#F5F3EE" stroke-width="2.5"></rect>
+      <circle cx="24" cy="24" r="11" fill="#D8463A"></circle>
+      <circle cx="24" cy="66" r="11" fill="#E6B73B"></circle>
+      <circle cx="24" cy="108" r="11" fill="#2E9D5C"></circle>
+    </svg>
+  </g>
+  <text class="wm" x="200" y="274" font-size="200" fill="#F5F3EE">RYGO</text>
+</svg>
