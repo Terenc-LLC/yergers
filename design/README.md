@@ -2,17 +2,17 @@
 
 Final identity files for **RYGO** — a minimalist daily logic-constraints puzzle at **playRYGO.com**.
 
----
-
 ## Specifications
 
 | Element        | Value                                          |
 |----------------|------------------------------------------------|
-| Wordmark font  | JetBrains Mono, weight 600                     |
+| Wordmark font  | **JetBrains Mono**, weight 600 (SemiBold)      |
 | Tracking       | −0.02em                                         |
 | Case           | RYGO (all caps)                                 |
 | Mark           | Square stoplight, 2.5px stroke, 6px corner radius |
 | Mark ratio     | 48 × 132 (width × height)                       |
+
+The webfont is embedded directly into every SVG (as base64 woff2), so the SVGs render in JetBrains Mono in any browser, design tool, or print pipeline — no external font dependency. The PNGs were rasterized from those same self-contained SVGs.
 
 ### Color palette
 
@@ -34,21 +34,22 @@ Final identity files for **RYGO** — a minimalist daily logic-constraints puzzl
 - `rygo-lockup-dark.svg` — primary lockup on Ink background
 - `rygo-mark.svg` — stoplight mark only, ink stroke
 - `rygo-mark-white.svg` — stoplight mark only, paper stroke (for dark)
-- `rygo-wordmark.svg` — RYGO wordmark only, ink
-- `rygo-wordmark-white.svg` — RYGO wordmark only, paper
-- `rygo-app-icon.svg` — square 1024 app icon, light
-- `rygo-app-icon-dark.svg` — square 1024 app icon, dark
-- `rygo-share-card-light.svg` / `rygo-share-card-dark.svg` — 1200×630 OG card
+- `rygo-wordmark.svg` — RYGO wordmark only, ink (font embedded)
+- `rygo-wordmark-white.svg` — RYGO wordmark only, paper (font embedded)
+- `rygo-app-icon.svg` — 1024 app icon, light
+- `rygo-app-icon-dark.svg` — 1024 app icon, dark
+- `rygo-share-card-dark.svg` / `rygo-share-card-light.svg` — 1200×630 OG card
 
 ### `png/` — rasterized for direct use
 
 - `rygo-app-icon-1024.png` — App Store / Play Store
+- `rygo-app-icon-1024-dark.png` — dark variant
 - `rygo-app-icon-512.png` — generic
 - `rygo-favicon-180.png` — `apple-touch-icon`
 - `rygo-favicon-32.png` — standard favicon
 - `rygo-favicon-16.png` — small favicon
 - `rygo-share-card-dark.png` / `rygo-share-card-light.png` — `og:image` (1200×630)
-- `rygo-lockup-light.png` / `rygo-lockup-dark.png` — embeddable lockup
+- `rygo-lockup-light.png` / `rygo-lockup-dark.png` — embeddable lockup (1200×480)
 
 ---
 
@@ -65,6 +66,18 @@ Final identity files for **RYGO** — a minimalist daily logic-constraints puzzl
 <meta name="twitter:card"   content="summary_large_image">
 ```
 
+To use the wordmark on your own site, include JetBrains Mono in your CSS:
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+.rygo-wordmark {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+```
+
 ---
 
 ## Usage rules
@@ -76,4 +89,4 @@ Final identity files for **RYGO** — a minimalist daily logic-constraints puzzl
 
 ---
 
-The interactive design canvas (`RYGO Logo.html`) remains as a working file — open it to revisit decisions or generate further variants via the Tweaks panel.
+The interactive design canvas (`RYGO Logo.html` in the project root) remains as a working file — open it to revisit decisions or generate further variants via the Tweaks panel.
