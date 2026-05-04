@@ -2,9 +2,9 @@
 
 # Terenc Development Process
 
-> **Status:** v2.3 — May 2, 2026 (inline close-out checklist required in issue bodies; autonomous Todo-queue mode codified)
+> **Status:** v2.4 — May 3, 2026 (docs migrated from Linear to repo `docs/`; Opus opens docs-only PRs for locked-section updates; Opus reviews PRs via GitHub MCP directly)
 > **Scope:** Standard process for any software project at Terenc that follows the Opus + Claude Code + Chris collaboration model.
-> **Note:** This document should be referenced from every Terenc software project's context document and pinned in each project's [claude.ai](<http://claude.ai>) project knowledge.
+> **Note:** This document is canonical at `docs/Terenc-Development-Process.md` in each Terenc software project's repo. It is referenced from every project's context document and pinned in each project's [claude.ai](<http://claude.ai>) project knowledge.
 
 This document captures how Chris (founder), Claude Opus (architecture / planning / review), and Claude Code (implementation) build software together. **Read this before starting any session.** It exists so we don't have to re-explain the workflow each time.
 
@@ -23,7 +23,7 @@ Before any code is written, we have a design conversation covering:
 
 For new feature areas, Opus is expected to ask EPC-operator-style questions before writing any implementation prompts. Architecture conversations precede issue creation, not the other way around.
 
-**Output:** a design document (Markdown) capturing decisions and open questions. Uploaded to Linear as a project document. The document becomes the source of truth for the feature.
+**Output:** a design document (Markdown) saved at `docs/<feature>.md` in the project repo. Opus opens a docs-only PR; Chris merges. The document becomes the source of truth for the feature.
 
 ### 2\. Issue creation
 
@@ -32,7 +32,7 @@ For new feature areas, Opus is expected to ask EPC-operator-style questions befo
 Opus drafts Linear issues for Claude Code to execute. Each issue includes:
 
 * **Title** — clear statement of what is being built.
-* **Context** — links to the relevant design doc(s) and the project context document.
+* **Context** — links to the relevant design doc(s) and the project context document (GitHub `docs/` paths, not Linear).
 * **Acceptance criteria** — observable, testable, specific.
 * **Definition of done** — what the system looks like after this issue ships.
 * **Scope guardrails** — what is *not* in this issue.
@@ -49,16 +49,18 @@ Two equally-supported modes for running Phase 3:
 * **Manual mode** (original): Opus drafts issue → Chris hands to Code interactively → Chris paces the loop turn by turn. Suitable for new feature areas, complex specs, or any session where Chris wants to observe Code's reasoning in real time.
 * **Autonomous Todo-queue mode**: Chris launches Code with a standing prompt to "pick highest-priority Todo, execute the full v2.3 cycle, stop at In Review." Code self-orchestrates a single issue per launch with no Chris involvement until In Review. Suitable only for issues with locked specs and no open design questions.
 
-**Constraint (both modes):** Code sessions run serially. Never launch a second Code session while one is active. Three doc-clobbering incidents have already occurred in projects using this process from parallel edits to the Linear context document.
+**Constraint (both modes):** Code sessions run serially. Never launch a second Code session while one is active. Concurrent sessions touching the same files would create branch conflicts at merge time; serial sessions also keep the doc-update flow simple. (v2.4 sidenote: now that the context doc lives in git rather than Linear, the failure mode is a surfaced merge conflict rather than a silent last-write-wins clobber — but serial sessions remain the recommended hygiene.)
 
 **Standing prompt for autonomous mode** (template — adapt per project):
 
 ```
-Read [PROJECT]_CONTEXT.md (Linear doc [DOC_ID]) in full.
+Read the project context doc fresh from GitHub main (Terenc-LLC/[REPO]/docs/[PROJECT]_CONTEXT.md) and the org Process doc at Terenc-LLC/[REPO]/docs/Terenc-Development-Process.md.
 
 Find the highest-priority issue in Todo status in the [PROJECT] Linear project. If none, stop and report.
 
 Move the issue to In Progress. Read it in full plus any linked design docs.
+
+Pull latest main locally. Create the feature branch from there using the issue's gitBranchName.
 
 Execute per the v2.3 close-out checklist embedded in the issue body. STOP at In Review. Do not merge. Do not move to Done.
 
@@ -75,16 +77,16 @@ This is the phase that has the most failure modes, so the workflow is prescripti
 
 At the **start** of every session, Code:
 
-1. Reads the project context document (e.g., `RYGO_CONTEXT.md`) using the document ID.
-2. Reads the assigned Linear issue and any linked design docs.
+1. Reads the project context document from GitHub main (e.g., `Terenc-LLC/rygo/docs/RYGO_CONTEXT.md`).
+2. Reads the assigned Linear issue and any linked design docs (linked design docs may be GitHub paths or Linear documents — follow the link).
 3. **Moves the Linear issue from Backlog/Todo to "In Progress."**
-4. Pulls the latest `main` and creates a feature branch using the Linear-provided `gitBranchName` (visible on every issue).
+4. **Pulls the latest `main`** and creates a feature branch using the Linear-provided `gitBranchName` (visible on every issue). Pulling main here is what picks up any docs-only PR Opus has merged since Code's last session.
 
 During the session, Code:
 
 5. Implements the feature on the feature branch. **Never commits directly to** `main`.
 6. Runs tests appropriate to the change (unit, integration, manual sanity).
-7. **Updates the project context document.** Only the sections explicitly allowlisted in the next section of this document — never the locked decisions or open questions.
+7. **Updates the project context document.** Only the sections explicitly allowlisted in the next section of this document — never the locked decisions or open questions. Edits land in `docs/[PROJECT]_CONTEXT.md` on the feature branch and are part of the issue's PR.
 
 At the **end** of the session, Code:
 
@@ -101,6 +103,7 @@ At the **end** of the session, Code:
 * Moves an issue to "Done."
 * Merges a PR.
 * Edits any non-allowlisted section of the context document (see below).
+* Edits the org Process doc (`docs/Terenc-Development-Process.md`) — that's an Opus-owned doc.
 * Invents architecture decisions that aren't in the design doc. If Code hits an unspecified decision, Code stops and asks via Linear comment.
 
 ### 4\. Review
@@ -111,7 +114,7 @@ When Code moves an issue to "In Review," both Opus and Chris are notified by vir
 
 #### Opus reviews
 
-* Reads the PR diff (via Chris pasting key files if necessary), the Code session summary on the Linear issue, and the context document.
+* Reads the PR diff, files list, and check-run status via GitHub MCP tools (`pull_request_read` with `get_diff` / `get_files` / `get_check_runs`), the Code session summary on the Linear issue, and the project context document from GitHub main. (v2.4: PR review pulls directly from GitHub — no "Chris pastes key files if necessary" fallback.)
 * Verifies acceptance criteria are met item by item.
 * Verifies the context document was updated additively in allowlisted sections only (locked decisions and open questions still present).
 * Flags issues, gaps, or improvements as Linear comments on the issue.
@@ -132,12 +135,16 @@ When Code moves an issue to "In Review," both Opus and Chris are notified by vir
 When Chris reports a PR is merged, Opus:
 
 * Marks the Linear issue as **Done.**
-* Updates the issue map in the project context document to reflect the new status.
-* Updates locked sections of the context document where the merged change requires it (Project identity, Tech stack, Source-of-truth references, etc. — sections Code is not permitted to edit).
+* Determines whether the merged change requires updates to locked sections of the project context document or to this Process doc (Project identity, Tech stack, Source-of-truth references, etc. — sections Code is not permitted to edit). If yes:
+  * Opens a **docs-only pull request** against `main`. Branch name follows the convention `opus/docs-<short-description>` (e.g., `opus/docs-ter148-closeout`).
+  * Touches only files under `docs/`. Never touches `src/`, tests, config, or app footer (footer is Code's per the existing per-session convention).
+  * Pastes the close-out summary into the PR description so the change is auditable.
+  * Hands off to Chris to merge. Code's next session will pull main and pick up the changes automatically (per Phase 3 step 4).
+* Updates the issue map in the project context document as part of the same docs-only PR.
 * Notes any drift caught during the close (e.g., status indicators on other issues that are stale, follow-ups surfaced during review).
-* If a session-log entry was clobbered by parallel edits during the in-review phase, restores it.
+* If a session-log entry was clobbered by a parallel branch during the in-review phase, restores it as part of the same PR.
 
-This consolidates the close-out work in one place and removes a context switch for Chris (who's already in GitHub when he merges).
+This consolidates the close-out work in one place, removes a context switch for Chris (who's already in GitHub when he merges), and keeps every doc change auditable in git history.
 
 ## Context document — editable sections (allowlist)
 
@@ -159,7 +166,7 @@ This section exists because Code has, in past sessions, restructured the project
 * Coding conventions
 * The editable-sections allowlist itself
 
-**If Code believes a locked decision needs to change:** Code stops, posts a Linear comment on the current issue describing the proposed change and reasoning, and waits for Opus to update the doc. Code does not silently restructure or remove content.
+**If Code believes a locked decision needs to change:** Code stops, posts a Linear comment on the current issue describing the proposed change and reasoning, and waits for Opus to update the doc via a docs-only PR. Code does not silently restructure or remove content.
 
 ## Definition of done — close-out checklist (paste into every issue body)
 
@@ -170,7 +177,7 @@ This template is pasted **inline, verbatim** into every issue (v2.3 rule). **An 
 - [ ] Tests written / updated as required by the issue.
 - [ ] All tests pass locally (`npm run test` or project equivalent).
 - [ ] Build passes locally (`npm run build` or project equivalent).
-- [ ] Project context document updated **only in allowlisted sections** (Session log, Architecture notes, Issue map). No edits to locked decisions or open questions.
+- [ ] Project context document (`docs/[PROJECT]_CONTEXT.md`) updated **only in allowlisted sections** (Session log, Architecture notes, Issue map). No edits to locked decisions or open questions.
 - [ ] Branch pushed to GitHub.
 - [ ] Pull request opened against `main`. Title: `TER-NNN: <description>`. Description references the Linear issue URL and summarizes what changed.
 - [ ] CI checks pass on the PR (build + test workflow green).
@@ -182,7 +189,7 @@ Chris's checklist (after Opus review):
 
 - [ ] Manual verification steps from the issue have been performed.
 - [ ] PR merged on GitHub.
-- [ ] Tell Opus the PR is merged. Opus marks the issue Done and updates the context doc.
+- [ ] Tell Opus the PR is merged. Opus marks the issue Done and (if needed) opens a docs-only PR for locked-section updates.
 
 ## Linear state transitions
 
@@ -201,15 +208,16 @@ The states we use, who moves them, and when:
 
 ## GitHub workflow
 
-* `main` is protected. No direct pushes. All changes go through pull requests.
+* `main` is protected. No direct pushes. All changes go through pull requests — including Opus's docs-only PRs.
 * **Branch protection rules** (configured by Chris in the GitHub repo settings):
   * Require a pull request before merging.
   * Require status checks (CI) to pass before merging.
   * The `build-and-test` job from `.github/workflows/ci.yml` is a required check.
-* **Feature branches** are named per the Linear-provided `gitBranchName` field on the issue.
-* **PR titles** start with the issue ID: `TER-133: Add color placement engine`.
+* **Feature branches** (Code) are named per the Linear-provided `gitBranchName` field on the issue.
+* **Docs-only branches** (Opus) are named `opus/docs-<short-description>` (e.g., `opus/docs-ter148-closeout`, `opus/docs-process-v2.5`).
+* **PR titles** start with the issue ID for code PRs (`TER-133: Add color placement engine`) or `docs:` for docs-only PRs (`docs: TER-148 close-out + Process v2.4`).
 * **PR descriptions** reference the Linear issue URL and summarize what changed at a high level.
-* **One PR per issue.** If scope grows, split the issue rather than mixing concerns in one PR.
+* **One PR per issue** for code PRs. If scope grows, split the issue rather than mixing concerns. Docs-only PRs may bundle multiple close-outs if they land together.
 
 ## Continuous integration
 
@@ -219,52 +227,60 @@ Every PR runs `.github/workflows/ci.yml` which executes:
 * `npm run build` (must succeed)
 * `npm run test` (all tests must pass)
 
-Until CI is green, the PR cannot merge. This is the gate that prevents broken code from reaching `main`.
+Until CI is green, the PR cannot merge. This is the gate that prevents broken code from reaching `main`. (Docs-only PRs run the same CI; build and test should pass trivially since no source files change.)
 
 ## Standard artifacts per project
 
-| Artifact                                           | Purpose                                                      | Owner                         |
-| -------------------------------------------------- | ------------------------------------------------------------ | ----------------------------- |
-| Project context document (e.g., `RYGO_CONTEXT.md`) | Single canonical Markdown doc Code reads at session start and updates at session end (allowlisted sections only). | Code maintains, Opus reviews. |
-| Design docs                                        | Per feature area, capturing architecture decisions and open questions. | Opus.                         |
-| Linear project                                     | Project-level container for milestones, issues, documents.   | Opus creates, Chris approves. |
-| GitHub repo                                        | Code, branches, PRs. Branch protection on `main`.            | Initialized at project start. |
-| CI workflow                                        | `.github/workflows/ci.yml` — runs build + test on every PR.  | Initialized at project start. |
-| [claude.ai](<http://claude.ai>) project            | Pinned project knowledge: this Process doc, the project's stable design docs, the project README. **NOT pinned:** the project context document — it changes every Code session and is fetched fresh from Linear at session start. | Chris creates, Opus advises.  |
+| Artifact                                                       | Purpose                                                      | Owner                         |
+| -------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------- |
+| Project context document (`docs/[PROJECT]_CONTEXT.md` in repo) | Single canonical Markdown doc Code reads at session start and updates at session end (allowlisted sections only). Locked-section updates land via Opus docs-only PRs. | Code maintains, Opus reviews. |
+| Org Process doc (`docs/Terenc-Development-Process.md` in repo) | This document. Canonical copy lives in each project repo. Updated by Opus via docs-only PR. | Opus.                         |
+| Design docs (`docs/<feature>.md` in repo)                      | Per feature area, capturing architecture decisions and open questions. Created by Opus via docs-only PR. | Opus.                         |
+| Linear project                                                 | Project-level container for milestones and issues only (documents are no longer kept in Linear; they live in the repo). | Opus creates, Chris approves. |
+| GitHub repo                                                    | Code, branches, PRs, and docs. Branch protection on `main`.  | Initialized at project start. |
+| CI workflow                                                    | `.github/workflows/ci.yml` — runs build + test on every PR.  | Initialized at project start. |
+| [claude.ai](<http://claude.ai>) project                        | Pinned project knowledge: this Process doc and the project's stable design docs (synced from repo `docs/`). **NOT pinned:** the project context document — it changes every Code session and is fetched fresh from GitHub main at session start. | Chris creates, Opus advises.  |
 
 ## Tools
 
-* **Linear** — projects, milestones, issues, design docs, status tracking.
-* **GitHub** — code, branches, pull requests, code review.
+* **Linear** — projects, milestones, issues, status tracking. **No longer used for documents** as of v2.4.
+* **GitHub** — code, docs, branches, pull requests, code review.
 * **GitHub Actions** — continuous integration.
-* **Claude Code** — implementation agent, runs in terminal or VS Code.
-* **Claude Opus** — architecture, issue authoring, code review, document drafting, issue close-out. Runs in [claude.ai](<http://claude.ai>) with the project pinned.
+* **Claude Code** — implementation agent, runs in terminal or VS Code. Has Linear MCP read/write and direct git/GitHub access from its environment.
+* **Claude Opus** — architecture, issue authoring, code review, document drafting, issue close-out. Runs in [claude.ai](<http://claude.ai>) with the project pinned. Has Linear MCP read/write, GitHub MCP read access (full repo), and GitHub MCP write access scoped to `docs/` only via docs-only PRs (added v2.4). Opus does not write to `src/`, tests, config, or any non-docs file.
 * **Google Drive (Terenc workspace)** — long-term doc storage, supplementary research, deliverables.
 
 ## Principles
 
 * **Design before code.** Always have the design conversation before writing issues.
-* **One source of truth per project** — the context document.
+* **One source of truth per project** — the context document at `docs/[PROJECT]_CONTEXT.md` in the repo.
 * **Issues are small, atomic, and acceptance-criteria-driven.** A good issue can be picked up by Code without further clarification from Chris.
 * **Issues carry their own checklist.** v2.3: the close-out checklist lives inline in the issue body, not behind a doc reference.
 * **Code never invents architecture.** If Code hits an unspecified decision, it stops and asks.
 * **Code never closes issues.** "In Review" is the last state Code touches.
 * **Code never restructures the context doc.** Allowlisted sections only.
-* **Chris merges, Opus closes.** Reduces context-switching for Chris and lets Opus handle related cleanup atomically.
+* **Opus never edits source.** Docs-only PRs touch only files under `docs/`.
+* **Chris merges, Opus closes.** Reduces context-switching for Chris and lets Opus handle related cleanup atomically via docs-only PRs.
 * **Manual testing is part of the loop.** Chris is in the verification path. Some things only humans can verify.
 * **Context docs are living artifacts.** They are updated every Code session, additively, in allowlisted sections only.
 * **CI is the gate.** Tests passing on Code's machine is not enough. Tests have to pass in CI for a PR to merge.
-* **Serial sessions only.** No parallel Code launches; the context doc is last-write-wins on Linear.
+* **Serial sessions only.** No parallel Code launches; concurrent branches touching the same files create merge conflicts.
 
 ## Reliable entry points for Code
 
-* **AXIS:** `Linear:get_document` with document ID `af060fba-e980-4621-95ca-109f8ce767d3` (AXIS_CONTEXT.md).
-* **RYGO:** `Linear:get_document` with document ID `6613a7c9-036c-45b3-89fb-fc473e596988` (RYGO_CONTEXT.md).
+* **AXIS:** GitHub `Terenc-LLC/axis/docs/AXIS_CONTEXT.md` on `main`. Use `GitHub:get_file_contents` (owner=`Terenc-LLC`, repo=`axis`, path=`docs/AXIS_CONTEXT.md`).
+* **RYGO:** GitHub `Terenc-LLC/rygo/docs/RYGO_CONTEXT.md` on `main`. Use `GitHub:get_file_contents` (owner=`Terenc-LLC`, repo=`rygo`, path=`docs/RYGO_CONTEXT.md`).
 * (Future projects to be added here.)
+
+*Note: AXIS context doc may still be in Linear at the time of v2.4 publication. Migration of the AXIS doc happens in a separate AXIS-side session. Until then, AXIS sessions should fall back to `Linear:get_document` with the legacy doc ID.*
 
 ## Changelog
 
-* **v2.3 (May 2, 2026):** Added inline-close-out-checklist rule (Phase 2) after [TER-151](https://linear.app/terenc/issue/TER-151/yergers-rygo-rebrand-rename-brand-asset-wiring-lockup-localstorage) process miss demonstrated that doc-reference-only checklists are not reliably followed. Added Operating modes section codifying autonomous Todo-queue mode alongside the original manual mode. Added serial-sessions principle and [claude.ai](<http://claude.ai>) project artifact to Standard artifacts. Updated Phase 5 close-out language to make explicit that Opus updates locked sections of the context doc when merged changes require it.
+* **v2.4 (May 3, 2026):** Two combined changes:
+  1. **Docs migrated from Linear to repo `docs/`.** Project context documents (`docs/[PROJECT]_CONTEXT.md`), the org Process doc (`docs/Terenc-Development-Process.md`), and design docs all now live in each project's GitHub repo under `docs/`. Linear is no longer used for documents — only for issues. Reasons: git history audit trail; no more silent last-write-wins clobbering on parallel edits; docs ride with code in PRs; one source-of-truth medium for everything.
+  2. **Opus opens docs-only PRs for locked-section updates.** Phase 5 close-out flow updated: when a merged change requires updates to locked sections of the context doc or to the Process doc, Opus creates a branch named `opus/docs-<short-description>`, pushes the doc changes, opens a PR titled with `docs:` prefix, and Chris merges. Opus's GitHub write access is scoped to `docs/` — never touches source. Code's next session picks up the doc changes automatically when pulling latest main (Phase 3 step 4).
+  Also: Phase 4 Opus-reviews bullet now references `GitHub:pull_request_read` directly (no "Chris pastes key files if necessary" fallback). First Opus PR review using GitHub MCP was on TER-148.
+* **v2.3 (May 2, 2026):** Added inline-close-out-checklist rule (Phase 2) after TER-151 process miss demonstrated that doc-reference-only checklists are not reliably followed. Added Operating modes section codifying autonomous Todo-queue mode alongside the original manual mode. Added serial-sessions principle and [claude.ai](<http://claude.ai>) project artifact to Standard artifacts. Updated Phase 5 close-out language to make explicit that Opus updates locked sections of the context doc when merged changes require it.
 * **v2.2 (May 1, 2026):** Opus marks issues Done after Chris reports a merge (was: Chris moves to Done). Reduces Chris's context-switching and consolidates close-out cleanup. Updated phase 4/5, state-transition table, and Chris's checklist accordingly.
 * **v2.1 (May 1, 2026):** Added explicit "Context document — editable sections (allowlist)" after second occurrence of Code silently dropping locked decisions during a doc restructure.
 * **v2 (May 1, 2026):** Made the workflow prescriptive. Added GitHub workflow, CI section, Definition of done template, Linear state-transition table.
